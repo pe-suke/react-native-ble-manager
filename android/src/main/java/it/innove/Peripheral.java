@@ -535,6 +535,8 @@ public class Peripheral extends BluetoothGattCallback {
 		this.setNotify(serviceUUID, characteristicUUID, false, 1, callback);
 	}
 
+	private static final int PROPERTY_GLC_NOTIFY_READ = 0x12;
+
 	// Some devices reuse UUIDs across characteristics, so we can't use
 	// service.getCharacteristic(characteristicUUID)
 	// instead check the UUID and properties for each characteristic in the service
@@ -556,6 +558,17 @@ public class Peripheral extends BluetoothGattCallback {
 			// If there wasn't Notify Characteristic, check for Indicate
 			for (BluetoothGattCharacteristic characteristic : characteristics) {
 				if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0
+						&& characteristicUUID.equals(characteristic.getUuid())) {
+					return characteristic;
+				}
+			}
+
+			// For GLC Device, AVGS Device has the following properties in characteristics
+			// 1. {Write:Write, Read:Read} 0x0a
+			// 2. {Notify:Notify, Read:Read} 0x12
+			// So, we can add 0x12 as designated property to register notify method
+			for (BluetoothGattCharacteristic characteristic : characteristics) {
+				if ((characteristic.getProperties() & PROPERTY_GLC_NOTIFY_READ) != 0
 						&& characteristicUUID.equals(characteristic.getUuid())) {
 					return characteristic;
 				}
