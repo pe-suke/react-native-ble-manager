@@ -681,6 +681,18 @@ class BleManager extends ReactContextBaseJavaModule implements ActivityEventList
 	}
 
 	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d(LOG_TAG, "onActivityResult");
+		if (requestCode == ENABLE_REQUEST && enableBluetoothCallback != null) {
+			if (resultCode == RESULT_OK) {
+				enableBluetoothCallback.invoke();
+			} else {
+				enableBluetoothCallback.invoke("User refused to enable");
+			}
+			enableBluetoothCallback = null;
+		}
+	}
+
 	public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
 		Log.d(LOG_TAG, "onActivityResult");
 		if (requestCode == ENABLE_REQUEST && enableBluetoothCallback != null) {
@@ -693,7 +705,6 @@ class BleManager extends ReactContextBaseJavaModule implements ActivityEventList
 		}
 	}
 
-	@Override
 	public void onNewIntent(Intent intent) {
 
 	}
